@@ -51,8 +51,8 @@
 	   unexpected blue lines. */
 	html > body > header {
 		background:
-			/* url(./assets/machine.avif) scroll no-repeat, */
-			/* url(./assets/machine.avif) scroll repeat-x, */
+			url(./assets/machine.avif) scroll no-repeat,
+			url(./assets/machine.avif) scroll repeat-x,
 			linear-gradient(90deg, #3ba81a, #72dd44) scroll;
 		background-size:
 			calc(var(--hero-imos) * 6 / 5) calc(var(--hero-imos)),
