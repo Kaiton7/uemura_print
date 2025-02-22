@@ -1,0 +1,788 @@
+/*****************************************************************************
+
+# Overview
+
+	+-------------------------------------+
+	|  O Imos Lab  -- -- --             = +  <= <nav>
+	+-------------------------------------+
+	|  Title                              |
+	|                             (^o^)v  |  <= <header>
+	|                             d| |    |
+	+-------------------------------------+
+	|  | Title             | | Profile |  |  <= <main>
+	|  | body              | |         |  |
+	|  |                   | |         |  |
+	|  |                   | +---------+  |
+	|  |                   |              |
+	|  |                   | +---------+  |
+	|  |                   | |         |  |
+	|  |                   | |         |  |
+	|  |                   | |         |  |
+	|  |                   | |         |  |
+	|  |                   | |         |  |
+  +-------------------------------------+
+                ^               ^
+            <article>        <aside>
+
+
+ *****************************************************************************/
+
+
+ :root {
+	--width: calc(max(100vw, 320px));
+	--height: calc(max(100vh, 800px));
+	--main-left: calc(max(var(--width) / 2 - 600px, 0px));
+	--main-right: calc(min(var(--width) / 2 + 600px, var(--width)));
+	--nav-height: 70px;
+	--hero-height: calc(70px + max(0px, 300px - var(--width) * 3 / 10));
+	--padding: calc(min(15px, var(--width) / 100));
+	--hero-imos: calc(max(min(250px, var(--width) / 4), 200px));
+}
+
+/*****************************************************************************
+ * Print configurations
+ *****************************************************************************/
+@media print {
+	html > body {
+		background: none;
+	}
+
+	/* Set the background in the header instead.  This prevents from showing
+	   unexpected blue lines. */
+	html > body > header {
+		background:
+			/* url(./assets/machine.avif) scroll no-repeat, */
+			/* url(./assets/machine.avif) scroll repeat-x, */
+			linear-gradient(90deg, #3ba81a, #72dd44) scroll;
+		background-size:
+			calc(var(--hero-imos) * 6 / 5) calc(var(--hero-imos)),
+			500px 150px,
+			100%;
+		background-position:
+			calc(var(--main-right) - var(--hero-imos) * 6 / 5)
+			calc(var(--hero-height) - var(--hero-imos) * 24 / 25),
+			0 calc(var(--hero-height) - 150px),
+			0;
+		margin-top: 0;
+	}
+
+	html > body > main {
+		background: #fff;
+	}
+
+	/* Stop showing gray borders. */
+	html > body > main > article {
+		filter: none;
+	}
+
+	html > body > nav {
+		display: none;
+	}
+
+	html > body > main > aside {
+		display: none;
+	}
+
+	html section.equation {
+		break-inside: avoid;
+	}
+
+	/* Show hints by default. */
+	html section.hint {
+		display: block;
+	}
+
+	/* page-after does not behave as expected.  This is a workaround to do a
+	  similar thing. */
+	h1::before, h2::before, h3::before, h4::before, h5::before {
+		content: "";
+		display: block;
+		width: 100vw;
+		height:  10vh;
+		margin-bottom: -10vh;
+		break-inside: avoid;
+	}
+}
+
+/*****************************************************************************
+ * Global configurations
+ *****************************************************************************/
+
+html, body {
+	/* Fix body's background size. */
+	width: calc(var(--width));
+	/* Enable contents (incl. the nav bar) to have a full width. */
+	margin: 0;
+	/* Prevent the font size from being changed in iOS. */
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	background:
+		url(img/hero_imos.png) fixed no-repeat,
+		url(img/hero_bg.png) fixed repeat-x,
+		linear-gradient(90deg, #118825, #44dd5b) fixed;
+	background-size:
+		calc(var(--hero-imos) * 6 / 5) calc(var(--hero-imos)),
+		500px 150px,
+		100%;
+	background-position:
+		calc(var(--main-right) - var(--hero-imos) * 6 / 5)
+		calc(var(--nav-height) + var(--hero-height) - var(--hero-imos) * 24 / 25),
+		0 calc(var(--nav-height) + var(--hero-height) - 150px),
+		0;
+
+	/* Default font families. */
+	font-family: 'メイリオ','HiraginoSans-W2', 'ヒラギノ角ゴシック W2',
+		'Hiragino Kaku Gothic Pro W2', 'HiraKakuPro-W2',
+		'ヒラギノ角ゴ Pro W3', 'Hiragino Kaku Gothic Pro',
+	    'メイリオ', Meiryo, 'ＭＳ Ｐゴシック', sans-serif;
+	font-weight: 200;
+
+	/* Adjust text spacing globally. */
+	line-height: 1.9;
+	letter-spacing: -0.005em;
+}
+
+/* Firefox does not use Hiragino Kaku Gothic Pro W10 for bold texts.  This
+   intentionally sets Hiragino Kaku Gothic Pro W10 to bold tags. */
+h1, h2, h3, h4, h5, b, strong {
+	font-family: 'メイリオ', 'HiraginoSans-W6', 'ヒラギノ角ゴシック W6',
+		'Hiragino Kaku Gothic Pro W6', 'HiraKakuPro-W6',
+		'Hiragino Kaku Gothic Pro',
+	    'メイリオ', Meiryo, 'ＭＳ Ｐゴシック', sans-serif;
+	font-weight: 600;
+}
+
+strong {
+	color: #c00;
+}
+
+a {
+	color: #37b;
+	text-decoration: none;
+}
+
+a[name] {
+	display: block;
+	position: relative;
+	top: calc(var(--nav-height) * -1);
+	visibility: hidden;
+}
+
+/*****************************************************************************
+ * Navigation bar
+ *****************************************************************************/
+
+body > nav {
+	position: fixed;
+	top: 0;
+	z-index: 1000;
+	width: calc(var(--width));
+	box-sizing: border-box;
+	height: calc(var(--nav-height));
+	padding:
+		0 calc(100vw - var(--main-right) + var(--padding) * 2)
+		0 calc(var(--main-left) + var(--padding) * 2);
+	background: #fff;
+	filter: drop-shadow(0px 2px 1px rgba(0, 0, 0, 0.05));
+}
+
+body > nav * {
+	/*display: inline-block;*/
+	display: inline-flex;
+	align-items: center;
+	height: calc(var(--nav-height));
+	line-height: calc(var(--nav-height));
+	vertical-align: middle;
+	text-decoration: none;
+	color: #666;
+	margin: 0;
+	padding: 0;
+}
+
+body > nav > a:first-child {
+	font-family: "Helvetica Neue";
+	font-weight: 400;
+	letter-spacing: 0.02ex;
+	word-spacing: -0.4ex;
+	font-size: 27px;
+}
+
+/* The title's imos icon in the navigation bar. */
+body > nav > a:first-child:before {
+	content: "";
+	display: inline-block;
+	height: calc(var(--nav-height) * 7 / 10);
+	width: calc(var(--nav-height) * 7 / 10);
+	background: url(img/nav_icon.jpg) no-repeat;
+	margin: 0 8px;
+	border: 1px solid #eee;
+	background-size: calc(var(--nav-height) * 7 / 10);
+	vertical-align: middle;
+	border-radius: calc(var(--nav-height));
+}
+
+/* The title in the navigation bar. */
+body > nav > a:first-child:after {
+	display: inline-block;
+	vertical-align: middle;
+	color: rgb(53, 153, 51);
+}
+
+body > nav > ul {
+	/* It adds the margin from the title. This is set to the UL tag so as to
+	   avoid the title from having margins for small displays. */
+	padding-left: 30px;
+}
+
+body > nav > ul > li > a {
+	padding: 0px 15px;
+}
+
+body > nav .menu_button {
+	float: right;
+	font-size: 250%;
+}
+
+body > nav .menu_button:before {
+	content: "≡";
+	color: #666;
+	display: none;
+	padding: 0 0 0.3ex calc(var(--padding) * 1);
+	line-height: calc(var(--nav-height) * 0.92);
+}
+
+body > nav .menu_button.visible:before {
+	content: "×";
+}
+
+body > nav a.language_button:before {
+	height: calc(var(--nav-height));
+	background-repeat: no-repeat;
+	background-position: 50% 48%;
+	margin: 0px 4px 0px 0px;
+}
+
+body > nav a.language_button {
+	float: right;
+	margin: 0px calc(var(--padding) * 1.5) 0px 0px;
+}
+
+@media screen and (max-width: 350px){
+	body > nav a.language_button {
+		font-size: 0px;
+	}
+}
+
+/*****************************************************************************
+ * Hero header
+ *****************************************************************************/
+
+body > header {
+	margin-top: calc(var(--nav-height));
+	width: calc(var(--width));
+	height: calc(var(--hero-height));
+	padding:
+		0px
+		calc(var(--width) - var(--main-right) + calc(var(--hero-imos)))
+		10px
+		calc(var(--main-left) + 30px);
+	box-sizing: border-box;
+	color: #fff;
+	text-shadow:
+		0px 0px 20px rgba(17, 51, 136, 0.8),
+		0px 1px 2px #11881b,
+		1px 0px 2px #118823,
+		0px -1px 2px #11882d,
+		-1px 0px 2px #218811;
+	display: block;
+	overflow-y: hidden;
+}
+
+body > header > section {
+	display: table-cell;
+	vertical-align: middle;
+	height: calc(var(--hero-height) - 10px);
+}
+
+body > header h1 {
+	margin: 0px;
+	font-size: calc(min(var(--width) / 20 + 15px, 40px));
+	font-weight: bold;
+	line-height: 150%;
+	word-break: keep-all;
+}
+
+/* Switch to the arrangement of the hero header when the display is small. */
+@media screen and (max-width: 750px){
+	body > header {
+		padding-left: calc(min(30px, var(--width) / 30));
+		padding-right: calc(min(30px, var(--width) / 30));
+		padding-bottom: calc(var(--hero-imos));
+	}
+
+	body > header > section {
+		height: calc(var(--hero-height) - var(--hero-imos) * 4 / 5);
+	}
+}
+
+/*****************************************************************************
+ * Main area
+ *****************************************************************************/
+
+body > main {
+	width: calc(var(--width));
+	display: flex;
+	background: #f0f0f5;
+	min-height: calc(var(--height) - var(--nav-height));
+	box-sizing: border-box;
+	padding:
+		0 calc(var(--main-left) + var(--padding))
+		0 calc(var(--width) - var(--main-right) + var(--padding));
+	text-align: justify;
+	overflow: hidden;
+}
+
+/* This blurs the background if the drawer is open. */
+#shadow {
+	display: none;
+	background-color: rgba(0, 0, 0, 0.2);
+	backdrop-filter: blur(3px);
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+}
+
+body > main > article {
+	width: 100%;
+	max-width: calc(min(100%, var(--width) - var(--padding) * 8));
+	min-height: calc(var(--height) - var(--nav-height));
+	margin: 0 calc(var(--padding));
+	padding: 15px calc(var(--padding) * 2) 90px calc(var(--padding) * 2);
+	background: #fff;
+	filter: drop-shadow(0px 2px 1px rgba(0, 0, 0, 0.05));
+}
+
+body > main > aside {
+	width: 300px;
+	min-width: 300px;
+	padding: 0px calc(var(--padding));
+}
+
+/* A first child should have no top margin even if they are H tags. */
+article > *:first-child,
+article > section:first-child > *:first-child,
+aside > section > *:first-child {
+	margin-top: 0;
+}
+
+/*****************************************************************************
+ * Aside
+ *****************************************************************************/
+
+body > main > aside > section {
+	display: block;
+	width: 100%;
+	margin: 15px 0px;
+	padding: calc(min(var(--padding) * 2, 22px));
+	box-sizing: border-box;
+	border-radius: 8px;
+	background: #ffffff;
+	filter: drop-shadow(0px 2px 1px rgba(0, 0, 0, 0.05));
+}
+
+aside h4 {
+	font-weight: normal;
+ 	position: relative;
+ 	padding: 0 0 0px 0;
+ 	font-size: 110%;
+ 	margin: 1em 0;
+ 	/*display: inline-block;*/
+}
+
+aside h4:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 5px;
+  border-top-left-radius: 14px;
+  background: repeating-linear-gradient(-45deg, #fff, #fff 3px, #def 1px, #def 6px);
+}
+
+aside h5 {
+	font-weight: bold;
+	font-size: 90%;
+	margin: 0;
+}
+
+aside ul, aside li {
+	display: block;
+	margin: 0;
+	padding: 0;
+	vertical-align: middle;
+}
+
+aside li:before {
+	display: inline-block;
+	content: "●";
+	/* color: #9ac; */
+	/*font-size: 100%;*/
+	transform: scale(0.4, 0.4);
+}
+
+aside li a {
+	color: #36a;
+}
+
+/*****************************************************************************
+ * Article
+ *****************************************************************************/
+
+article h1 {
+	margin: 1.5ex 0 1ex;
+	padding: 0.3ex 0;
+	font-size: 150%;
+	color: #359;
+
+	/* Border-related parameters. */
+  border-bottom: solid 3px #cdf;
+  position: relative;
+}
+
+/* Border-related parameters. */
+article h1:after {
+  content: " ";
+  display: block;
+  position: absolute;
+  border-bottom: solid 3px #56c;
+  bottom: -3px;
+  width: 15%;
+}
+
+article h2 {
+	margin: 1.5ex 0 1ex;
+	font-size: 140%;
+	color: #359;
+	border-bottom: 4mm ridge rgba(95, 220, 50, 0.6);
+}
+
+article h3 {
+	margin: 2ex 0 1ex;
+	font-size: 120%;
+	color: #57b;
+	border-left: 4px solid #57b;
+	padding-left: 7px;
+	line-height: 1.4;
+}
+
+article h4 {
+	margin: 2ex 0 1ex;
+	font-size:  110%;
+	/* text-decoration: underline; */
+}
+
+article h5 {
+	margin: 2ex 0 1ex;
+	font-size:  105%;
+	font-style: italic;
+	font-weight: normal;
+}
+
+article ul {
+	padding-inline-start: calc(min(40px, 4vw));
+}
+
+article table.table {
+	width: 95%;
+	border: 1px solid #ccc;
+	margin: 10px auto 15px;
+	border-collapse: collapse;
+	background: #f8f8ff;
+	background: -webkit-gradient(linear, center top, center bottom,
+			from(#fff),
+			to(#eef));
+	background: -moz-linear-gradient(center top, #fff, #eef);
+}
+
+article table.table>thead>tr>td,
+article table.table>tbody>tr>td {
+	padding: 4px;
+	border: 1px solid #888;
+}
+
+article table.table>thead>tr>td {
+	color: #fff;
+	background: #558;
+	text-align: center;
+	font-weight: bold;
+}
+
+article table.table>tbody>tr:nth-child(even) {
+	background: rgba(0, 0, 128, 0.05);
+}
+article .shadow {
+	-moz-box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
+	-webkit-box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
+	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
+}
+
+article .textshadow {
+	-moz-text-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
+	-webkit-text-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
+	text-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
+}
+
+article .chartbox-blue {
+	border-radius: 10px;
+	padding: 7px;
+	margin: 3px;
+	border: 1px solid #888;
+	background: -webkit-gradient(linear, center top, center bottom,
+			from(#eef),
+			to(#ccf));
+	background: -moz-linear-gradient(center top, #eef, #ccf);
+}
+
+article .chartbox-red {
+	border-radius: 10px;
+	padding: 7px;
+	margin: 3px;
+	border: 1px solid #888;
+	background: -webkit-gradient(linear, center top, center bottom,
+			from(#fee),
+			to(#fcc));
+	background: -moz-linear-gradient(center top, #fee, #fcc);
+}
+
+article .chartbox-green {
+	border-radius: 10px;
+	padding: 7px;
+	margin: 3px;
+	border: 1px solid #888;
+	background: -webkit-gradient(linear, center top, center bottom,
+			from(#efe),
+			to(#cfc));
+	background: -moz-linear-gradient(center top, #efe, #cfc);
+}
+
+article>dl>dt {
+	font-size: 110%;
+	font-weight: bold;
+	margin: 1ex 0 0 0;
+}
+article dd {
+	margin-inline-start: calc(min(40px, 4vw));
+}
+@media screen and (max-width: 1000px) {
+	body > nav > ul {
+		display: none;
+	}
+
+	body > nav .menu_button:before {
+		display: inline-block;
+	}
+
+	body > main > aside {
+		position: fixed;
+		background: #f0f0f5;
+		top: calc(var(--nav-height));
+		right: -400px;
+		height: calc(100vh - var(--nav-height));
+		overflow-y: scroll;
+		box-shadow: 0 0 50px 0 rgba(0, 0, 0, 0.5);
+		padding: 0 15px;
+	}
+
+	body > main > aside > section {
+		padding: 15px 15px;
+	}
+}
+
+/*****************************************************************************
+ * Icon links
+ *****************************************************************************/
+
+a.service {
+	display: inline-block;
+	font-size: 11px;
+	font-family: "Helvetica Neue";
+	font-weight: 500;
+	height: 20px;
+	line-height: 20px;
+	border-radius: 100px;
+	color: #fff;
+	padding: 0 9px;
+}
+
+a.service:before {
+	content: "";
+	display: inline-block;
+	width: 13px;
+	height: 13px;
+	background-repeat: no-repeat;
+	background-size: cover;
+	margin: 0 4px 0 0;
+	vertical-align: middle;
+}
+
+a.github {
+	background: #666;
+}
+
+a.github:hover {
+	background-color: #444;
+}
+
+a.github:before {
+	background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="white" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>');
+	vertical-align: -13%;
+}
+
+a.twitter {
+	background-color: #1d9bf0;
+}
+
+a.twitter:hover {
+	background-color: #0c7abf;
+}
+
+a.twitter:before {
+	background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="white" d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z" /></svg>');
+	vertical-align: -14%;
+}
+
+a.linkedin {
+	background-color: #17d;
+}
+
+a.linkedin:hover {
+	background-color: #06b;
+}
+
+a.linkedin:before {
+	background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="white" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>');
+	vertical-align: -13%;
+}
+
+a.icon2 {
+	opacity: 0.6;
+	transition: all 0.2s;
+	color: black;
+}
+
+a.icon2:hover {
+	opacity: 0.8;
+}
+
+a.icon2:before {
+	content: "";
+	display: inline-block;
+	vertical-align: middle;
+	height: calc(var(--nav-height));
+}
+
+a.global:before {
+	background-image:  url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path class="st0" d="M463.203,105.688c-3.047-4.25-6.234-8.406-9.609-12.484C406.641,36.313,335.531,0,256,0C176.484,0,105.359,36.313,58.406,93.203c-3.375,4.078-6.563,8.234-9.594,12.484C18.078,147.922,0,199.844,0,256c0,56.313,18.156,108.484,49.031,150.719c3.125,4.328,6.406,8.563,9.844,12.656C105.844,475.922,176.719,512,256,512c79.688,0,150.813-36.406,197.75-93.438c3.453-4.078,6.734-8.313,9.781-12.641C494.078,363.766,512,312,512,256C512,199.844,493.922,147.922,463.203,105.688z M471.688,247.969H385.75c-0.625-32.563-5.031-63.438-12.5-91.219c21.156-7.219,40.594-16.359,57.781-27.063C455.328,163.156,470.047,203.938,471.688,247.969z M263.984,41.906c37.375,5.188,70.438,46.109,89.297,104.281c-27.469,7.828-57.594,12.406-89.297,13.094V41.906z M247.984,41.906v117.375c-31.703-0.688-61.828-5.266-89.297-13.094C177.547,88.016,210.609,47.094,247.984,41.906z M247.984,175.266v72.703H142.219c0.625-30.766,4.891-60.094,11.984-86.516C183.094,169.75,214.703,174.594,247.984,175.266z M247.984,263.969v72.703c-33.234,0.797-64.828,5.734-93.703,14.094c-7.141-26.484-11.422-55.922-12.063-86.797H247.984z M247.984,352.656v117.375c-37.297-5.172-70.313-45.938-89.188-103.938C186.625,358.031,216.734,353.453,247.984,352.656z M263.984,470.031V352.625c31.703,0.563,61.859,5.094,89.359,12.875C334.5,423.813,301.406,464.844,263.984,470.031z M263.984,336.625v-72.656H369.75c-0.625,30.625-4.859,59.859-11.891,86.188C328.938,341.938,297.281,337.188,263.984,336.625z M263.984,247.969v-72.703c33.281-0.672,64.891-5.5,93.797-13.797c7.078,26.406,11.344,55.75,11.969,86.5H263.984z M421.281,117.203c-15.656,9.547-33.344,17.703-52.563,24.266c-13.219-40.938-33.266-74-57.406-94.219C354.906,58.797,393.156,83.609,421.281,117.203z M200.656,47.25c-24.141,20.234-44.188,53.281-57.406,94.203c-19.188-6.563-36.891-14.703-52.531-24.25C118.844,83.625,157.063,58.813,200.656,47.25z M80.969,129.688c17.188,10.703,36.609,19.828,57.75,27.063c-7.469,27.781-11.875,58.656-12.5,91.219H40.313C41.953,203.938,56.688,163.156,80.969,129.688z M40.313,263.969h85.906c0.625,32.688,5.063,63.688,12.594,91.563c-21.094,7.25-40.469,16.359-57.609,27.031C56.75,348.984,41.938,308.109,40.313,263.969z M91.125,395.203c15.875-9.703,33.484-17.797,52.281-24.297c13.219,40.781,33.25,73.703,57.344,93.844C157.344,453.25,119.219,428.594,91.125,395.203z M311.219,464.75c24.25-20.25,44.359-53.438,57.578-94.547c19.281,6.547,37.047,14.719,52.734,24.281C393.313,428.234,354.938,453.156,311.219,464.75z M431.359,381.922c-17.266-10.734-36.781-19.859-58.016-27.063c7.406-27.703,11.781-58.453,12.406-90.891h85.938C470.078,307.859,455.5,348.438,431.359,381.922z" /></svg>');
+	width: 25px;
+	height: 25px;
+}
+
+a.profile {
+	color: #888;
+}
+
+a.profile strong {
+	color: #000;
+}
+
+/*****************************************************************************
+ * Others
+ *****************************************************************************/
+
+.equation {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	padding: 2ex 0;
+}
+
+.equation:before {
+	content: "";
+	display: inline-block;
+	margin-right: auto;
+}
+
+.equation:after {
+	display: inline-block;
+	content: "("attr(data-tag)")";
+	padding-left: 3ex;
+	margin-left: auto;
+}
+
+.equation .mjx-chtml {
+	margin: 0 auto;
+	flex-grow: 10;
+	overflow-x: scroll;
+	padding: 5px 0;
+	font-size: calc(min(100%, var(--width) / 30));
+}
+
+pre.prettyprint, pre.prettyprint code {
+	font-size: 80%;
+	font-family:
+		'Andale Mono', 'Monaco', 'Courier New',
+		'HiraginoSans-W2', 'ヒラギノ角ゴシック W2',
+		'Hiragino Kaku Gothic Pro W2', 'HiraKakuPro-W2',
+		'Hiragino Kaku Gothic Pro', 'メイリオ', Meiryo,
+		'ＭＳ Ｐゴシック', monospace;
+		line-height: 1.8;
+	letter-spacing: -0.1ex;
+}
+
+pre.prettyprint .com {
+	letter-spacing: 0;
+}
+
+pre.prettyprint {
+	overflow-x: scroll;
+	background-color: #fff;
+	white-space: pre-wrap;
+	text-align: initial;
+}
+
+pre.prettyprint li {
+	padding-left: 0.5ex;
+}
+
+li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9 {
+	color: #888;
+	list-style-type: decimal;
+}
+
+span[data-hint] {
+	border-bottom: 1px dashed #44f;
+	cursor: pointer;
+}
+
+section.hint {
+	display: none;
+	padding: 0.3em 0.7em;
+	margin: 0.3em 0;
+	border-radius: 0.5em;
+	border: 1px dashed #aaa;
+	background-color: #ffe;
+}
+
+section.hint:before {
+	display: block;
+	content: "Note";
+	font-weight: bold;
+	font-size: 50%;
+	padding: 0.1em 0;
+}
