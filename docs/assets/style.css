@@ -119,8 +119,8 @@ html, body {
 
 body {
 	background:
-		url(img/hero_imos.png) fixed no-repeat,
-		url(img/hero_bg.png) fixed repeat-x,
+		url() fixed no-repeat,
+		url() fixed repeat-x,
 		linear-gradient(90deg, #118825, #44dd5b) fixed;
 	background-size:
 		calc(var(--hero-imos) * 6 / 5) calc(var(--hero-imos)),
@@ -215,7 +215,7 @@ body > nav > a:first-child:before {
 	display: inline-block;
 	height: calc(var(--nav-height) * 7 / 10);
 	width: calc(var(--nav-height) * 7 / 10);
-	background: url(img/nav_icon.jpg) no-repeat;
+	background: url(printer.png) no-repeat;
 	margin: 0 8px;
 	border: 1px solid #eee;
 	background-size: calc(var(--nav-height) * 7 / 10);
