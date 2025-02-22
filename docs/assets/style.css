@@ -189,7 +189,7 @@ body > nav {
 }
 
 body > nav * {
-	/*display: inline-block;*/
+	display: inlsine-block;
 	display: inline-flex;
 	align-items: center;
 	height: calc(var(--nav-height));
@@ -471,6 +471,16 @@ article h2 {
 	border-bottom: 4mm ridge rgba(95, 220, 50, 0.6);
 }
 
+
+.bottom {
+ background-image: url("./workforward.avif");
+ background-size: cover; /* 画像をボックス全体にフィット */
+ background-position: center; /* 画像の位置を中央に */
+ /* width: 200px; 必要に応じて幅を調整 */
+ height: 1200px; /* 必要に応じて高さを調整 */
+
+}
+
 article h3 {
 	margin: 2ex 0 1ex;
 	font-size: 120%;
@@ -483,7 +493,7 @@ article h3 {
 article h4 {
 	margin: 2ex 0 1ex;
 	font-size:  110%;
-	/* text-decoration: underline; */
+	text-decoration: underline;
 }
 
 article h5 {
